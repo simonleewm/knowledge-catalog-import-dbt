@@ -1,0 +1,17 @@
+customer_id,first_name,last_name,email,country_code,signup_date,status,updated_at
+1001,Alice,Nguyen,alice.nguyen@example.com,AU,2023-01-15,active,2024-01-10T08:30:00Z
+1002,Ben,Carter,Ben.Carter@Example.com,us,2023-02-03,Active,2024-01-12T09:00:00Z
+1003,Chloe,Dubois,chloe.dubois@example.com,FR,2023-02-20,active,2024-01-15T10:15:00Z
+1004,Daniel,Okafor,daniel.okafor@example.com ,NG,2023-03-08,inactive,2024-02-01T11:45:00Z
+1005,Emma,Schmidt,emma.schmidt@example.com,de,2023-03-22,ACTIVE,2024-02-05T14:20:00Z
+1006,Farid,Haddad,farid.haddad@example.com,AE,2023-04-11,active,2024-02-10T16:05:00Z
+1007,Grace,Lee,GRACE.LEE@EXAMPLE.COM,KR,2023-05-02,active,2024-02-18T07:50:00Z
+1008,Hiro,Tanaka,hiro.tanaka@example.com,JP,2023-05-19,Inactive,2024-03-01T12:00:00Z
+1009,Isabella,Rossi,isabella.rossi@example.com,it,2023-06-07,active,2024-03-03T13:30:00Z
+1010,Jack,Wilson,jack.wilson@example.com,GB,2023-06-25,active,2024-03-09T15:10:00Z
+1011,Kavya,Patel,kavya.patel@example.com,IN,2023-07-14,active,2024-03-15T09:25:00Z
+1012,Liam,Murphy,liam.murphy@example.com,IE,2023-08-01,suspended,2024-03-20T10:40:00Z
+1013,Maria,Garcia,maria.garcia@example.com,ES,2023-08-23,active,2024-04-02T08:05:00Z
+1014,Noah,Brown, noah.brown@example.com,CA,2023-09-10,active,2024-04-08T17:35:00Z
+1015,Olivia,Smith,,nz,2023-10-05,active,2024-04-15T11:00:00Z
+1002,Ben,Carter,ben.carter@example.com,US,2023-02-03,inactive,2024-05-01T09:00:00Z

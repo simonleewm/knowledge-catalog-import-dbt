@@ -1,0 +1,79 @@
+# dbt_bq_demo - minimal layered dbt project on BigQuery
+#
+# Layer -> BigQuery dataset mapping (one dataset per layer, exact names):
+#   seeds  (demo stand-in for external source tables)  -> sources
+#   models/landing   (1:1 copy of source + audit cols)  -> landing
+#   models/raw       (typed / cleaned / de-duplicated)   -> raw
+#   models/curated   (placeholder, no models yet)        -> curated
+#   models/conformed (placeholder, no models yet)        -> conformed
+#
+# Dataset names are applied verbatim via macros/generate_schema_name.sql
+# (dbt's default behaviour would prefix them with the profile's dataset).
+
+name: dbt_bq_demo
+version: "1.0.0"
+config-version: 2
+
+profile: dbt_bq_demo
+
+require-dbt-version: ">=1.10.0"
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+flags:
+  send_anonymous_usage_stats: false
+  # Source freshness: keep dbt-bigquery's per-table metadata lookup (real time,
+  # proven here). The alternative batch method reads INFORMATION_SCHEMA.TABLE_STORAGE,
+  # which BigQuery documents as delayed by seconds-to-minutes and NULL for brand-new
+  # tables - i.e. spurious freshness errors on a first run. dbt warns whenever this
+  # flag is false (explicitly or not), so the warning is silenced below.
+  bigquery_use_batch_source_freshness: false
+  warn_error_options:
+    silence:
+      - BehaviorChangeEvent
+
+models:
+  dbt_bq_demo:
+    +materialized: table
+    # Push model/column descriptions into BigQuery table metadata so they are
+    # visible in the BigQuery console and Knowledge Catalog's BigQuery entries.
+    +persist_docs:
+      relation: true
+      columns: true
+
+    landing:
+      +schema: landing
+      +tags: ["landing"]
+
+    raw:
+      +schema: raw
+      +tags: ["raw"]
+
+    # Placeholder layers - no models yet. Uncomment when the first model is
+    # added to the folder (dbt warns about config paths that match no resources).
+    # curated:
+    #   +schema: curated
+    #   +tags: ["curated"]
+    # conformed:
+    #   +schema: conformed
+    #   +tags: ["conformed"]
+
+seeds:
+  dbt_bq_demo:
+    # Seeds emulate the upstream "source" tables for the demo.
+    +schema: sources
+    +tags: ["sources", "demo_seed"]
+    +persist_docs:
+      relation: true
+      columns: true

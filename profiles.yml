@@ -1,0 +1,28 @@
+# dbt profile for dbt_bq_demo.
+#
+# dbt picks up a profiles.yml from the project root automatically, so no
+# ~/.dbt/profiles.yml is required. All environment-specific values come from
+# environment variables (see .env.example).
+#
+# Authentication: OAuth via Application Default Credentials.
+#   gcloud auth application-default login
+#   (or export GOOGLE_APPLICATION_CREDENTIALS=/path/to/sa-key.json)
+
+dbt_bq_demo:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      # GCP project that will hold the sources/landing/raw/... datasets.
+      project: "{{ env_var('DBT_GCP_PROJECT') }}"
+      # Fallback dataset for any node WITHOUT an explicit +schema. Every layer
+      # in this project sets one, so this dataset is normally never created.
+      dataset: "{{ env_var('DBT_DEFAULT_DATASET', 'dbt_bq_demo') }}"
+      # Region used when dbt creates datasets. Keep it equal to the Knowledge
+      # Catalog import location so dbt -> BigQuery entry links can resolve.
+      location: "{{ env_var('DBT_BQ_LOCATION', 'us-central1') }}"
+      threads: 4
+      priority: interactive
+      job_execution_timeout_seconds: 300
+      job_retries: 1

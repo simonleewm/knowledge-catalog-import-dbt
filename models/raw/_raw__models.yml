@@ -1,0 +1,118 @@
+version: 2
+
+# Raw layer models carry an enforced model contract: every column and its
+# BigQuery data type is declared below and dbt verifies the model output
+# matches before the table is (re)built. Knowledge Catalog surfaces this via
+# the dbt-model-contracts aspect. If you change a model's columns, update the
+# contract here as well (or set `contract.enforced: false`).
+
+models:
+  - name: raw_customers
+    description: >
+      Typed and cleaned customers (BigQuery table `raw.customers`).
+      One row per customer_id (latest updated_at wins). Text is trimmed, emails
+      lower-cased, country codes upper-cased, statuses lower-cased, blanks -> NULL.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: customer_id
+        description: Customer identifier (primary key).
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer given name.
+        data_type: string
+        config:
+          tags: ["pii"]
+      - name: last_name
+        description: Customer family name.
+        data_type: string
+        config:
+          tags: ["pii"]
+      - name: email
+        description: Contact email, lower-cased; NULL when blank in source.
+        data_type: string
+        config:
+          tags: ["pii"]
+      - name: country_code
+        description: ISO-3166 alpha-2 country code, upper-cased.
+        data_type: string
+      - name: signup_date
+        description: Date the customer signed up.
+        data_type: date
+      - name: status
+        description: Account status, lower-cased.
+        data_type: string
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["active", "inactive", "suspended"]
+      - name: updated_at
+        description: Last modification timestamp in the source (UTC).
+        data_type: timestamp
+      - name: _loaded_at
+        description: Timestamp at which dbt loaded the row into the landing layer.
+        data_type: timestamp
+
+  - name: raw_sales
+    description: >
+      Typed and cleaned sales transactions (BigQuery table `raw.sales`).
+      One row per sale_id (latest updated_at wins). Numeric and timestamp
+      columns are cast from text; codes are upper-cased, channel lower-cased.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: sale_id
+        description: Sale identifier (primary key).
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Purchasing customer; foreign key to raw_customers.customer_id.
+        data_type: int64
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_customers')
+                field: customer_id
+      - name: sale_ts
+        description: Transaction timestamp (UTC).
+        data_type: timestamp
+      - name: product_code
+        description: SKU code, upper-cased.
+        data_type: string
+      - name: product_name
+        description: Product display name.
+        data_type: string
+      - name: quantity
+        description: Units sold.
+        data_type: int64
+      - name: unit_price
+        description: Price per unit in `currency` (NUMERIC(12,2)).
+        data_type: numeric(12,2)
+      - name: currency
+        description: ISO-4217 currency code, upper-cased.
+        data_type: string
+      - name: channel
+        description: Sales channel, lower-cased.
+        data_type: string
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["online", "store", "marketplace"]
+      - name: updated_at
+        description: Last modification timestamp in the source (UTC).
+        data_type: timestamp
+      - name: _loaded_at
+        description: Timestamp at which dbt loaded the row into the landing layer.
+        data_type: timestamp

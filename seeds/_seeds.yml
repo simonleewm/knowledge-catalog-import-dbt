@@ -1,0 +1,89 @@
+version: 2
+
+# Seeds emulate the upstream source system for this demo. They are loaded into
+# the `sources` BigQuery dataset and then declared as dbt *sources* in
+# models/landing/_landing__sources.yml.
+#
+# Every column is forced to STRING to mimic an untyped file extract; typing,
+# trimming, case normalisation and de-duplication happen in the raw layer.
+#
+# Note: in dbt's DAG a seed and a source are separate nodes, so lineage in
+# dbt docs / Knowledge Catalog starts at the *source* (sources.customers),
+# not at the seed. That mirrors a real deployment where the source tables are
+# populated by an external pipeline rather than by dbt.
+
+seeds:
+  - name: customers
+    description: >
+      Demo customer master extract (<= 20 rows). Raw file-style export:
+      all STRING columns, inconsistent casing/whitespace, and one duplicated
+      customer_id (1002) carrying a later updated_at.
+    config:
+      column_types:
+        customer_id: string
+        first_name: string
+        last_name: string
+        email: string
+        country_code: string
+        signup_date: string
+        status: string
+        updated_at: string
+    columns:
+      - name: customer_id
+        description: Source system customer identifier (string in the extract).
+        data_tests:
+          - not_null
+      - name: first_name
+        description: Customer given name.
+      - name: last_name
+        description: Customer family name.
+      - name: email
+        description: Contact email as captured by the source (mixed case, may be blank).
+      - name: country_code
+        description: ISO-3166 alpha-2 country code, inconsistent casing in source.
+      - name: signup_date
+        description: Date the customer signed up, formatted YYYY-MM-DD.
+      - name: status
+        description: Account status free text (active / inactive / suspended, mixed case).
+      - name: updated_at
+        description: Last modification timestamp in the source, ISO-8601 UTC.
+
+  - name: sales
+    description: >
+      Demo sales transactions extract (<= 20 rows). All STRING columns.
+      sale_id 5009 appears twice (quantity corrected, newer updated_at).
+    config:
+      column_types:
+        sale_id: string
+        customer_id: string
+        sale_ts: string
+        product_code: string
+        product_name: string
+        quantity: string
+        unit_price: string
+        currency: string
+        channel: string
+        updated_at: string
+    columns:
+      - name: sale_id
+        description: Source system sale identifier (string in the extract).
+        data_tests:
+          - not_null
+      - name: customer_id
+        description: Customer who made the purchase; references customers.customer_id.
+      - name: sale_ts
+        description: Transaction timestamp, ISO-8601 UTC.
+      - name: product_code
+        description: SKU code of the product sold.
+      - name: product_name
+        description: Product display name.
+      - name: quantity
+        description: Units sold (integer stored as text).
+      - name: unit_price
+        description: Price per unit in `currency` (decimal stored as text).
+      - name: currency
+        description: ISO-4217 currency code.
+      - name: channel
+        description: Sales channel free text (online / store / marketplace, mixed case).
+      - name: updated_at
+        description: Last modification timestamp in the source, ISO-8601 UTC.

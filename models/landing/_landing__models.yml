@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: lnd_customers
+    description: >
+      Landing copy of `sources.customers` (BigQuery table `landing.customers`).
+      Exact replica of the source extract plus load audit columns. Duplicates
+      present in the source are preserved here; de-duplication happens in raw.
+    columns:
+      - name: customer_id
+        description: Source system customer identifier (STRING, as received).
+        data_tests:
+          - not_null
+      - name: first_name
+        description: Customer given name, as received.
+      - name: last_name
+        description: Customer family name, as received.
+      - name: email
+        description: Contact email, as received (mixed case / whitespace possible).
+      - name: country_code
+        description: Country code, as received (mixed case possible).
+      - name: signup_date
+        description: Sign-up date as text, YYYY-MM-DD.
+      - name: status
+        description: Account status free text, as received.
+      - name: updated_at
+        description: Source last-modified timestamp as text, ISO-8601 UTC.
+      - name: _loaded_at
+        description: Timestamp at which dbt loaded this row into the landing layer.
+      - name: _dbt_invocation_id
+        description: dbt invocation id of the run that loaded this row.
+
+  - name: lnd_sales
+    description: >
+      Landing copy of `sources.sales` (BigQuery table `landing.sales`).
+      Exact replica of the source extract plus load audit columns.
+    columns:
+      - name: sale_id
+        description: Source system sale identifier (STRING, as received).
+        data_tests:
+          - not_null
+      - name: customer_id
+        description: Purchasing customer identifier, as received.
+      - name: sale_ts
+        description: Transaction timestamp as text, ISO-8601 UTC.
+      - name: product_code
+        description: SKU code, as received.
+      - name: product_name
+        description: Product display name, as received.
+      - name: quantity
+        description: Units sold as text.
+      - name: unit_price
+        description: Unit price as text, in `currency`.
+      - name: currency
+        description: ISO-4217 currency code, as received.
+      - name: channel
+        description: Sales channel free text, as received.
+      - name: updated_at
+        description: Source last-modified timestamp as text, ISO-8601 UTC.
+      - name: _loaded_at
+        description: Timestamp at which dbt loaded this row into the landing layer.
+      - name: _dbt_invocation_id
+        description: dbt invocation id of the run that loaded this row.

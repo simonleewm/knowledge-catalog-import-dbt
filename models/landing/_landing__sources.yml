@@ -1,0 +1,72 @@
+version: 2
+
+# Upstream source tables. In this demo they are populated by `dbt seed`
+# (see seeds/), in a real deployment by an external ingestion pipeline.
+#
+# Freshness is metadata-based: no loaded_at_field is declared, so dbt-bigquery
+# uses the table's last-modified time from BigQuery metadata. Run `dbt seed`
+# before `dbt source freshness` so the tables exist and are recent.
+#
+# No tests are declared on the sources on purpose: in `dbt build` a source test
+# has no dependency on the seed that (re)loads the table in this demo, so it
+# would run concurrently with the seed's drop/recreate and fail with
+# "Not found: Table". The same not_null checks live on the seeds
+# (seeds/_seeds.yml) and on the landing models, which are ordered after the
+# seeds. In production (externally loaded sources) tests belong here.
+
+sources:
+  - name: sources
+    description: >
+      BigQuery dataset `sources` holding the raw upstream extracts that feed the
+      landing layer.
+    # Dataset name in BigQuery. The project defaults to the profile's project;
+    # set `database:` here if the source tables live in another GCP project.
+    schema: sources
+    config:
+      freshness:
+        warn_after: {count: 24, period: hour}
+        error_after: {count: 7, period: day}
+    tables:
+      - name: customers
+        description: Customer master extract from the source system (untyped STRING columns).
+        columns:
+          - name: customer_id
+            description: Source system customer identifier.
+          - name: first_name
+            description: Customer given name.
+          - name: last_name
+            description: Customer family name.
+          - name: email
+            description: Contact email as captured by the source.
+          - name: country_code
+            description: ISO-3166 alpha-2 country code (inconsistent casing).
+          - name: signup_date
+            description: Sign-up date as text, YYYY-MM-DD.
+          - name: status
+            description: Account status free text.
+          - name: updated_at
+            description: Last modification timestamp as text, ISO-8601 UTC.
+
+      - name: sales
+        description: Sales transaction extract from the source system (untyped STRING columns).
+        columns:
+          - name: sale_id
+            description: Source system sale identifier.
+          - name: customer_id
+            description: Purchasing customer; references customers.customer_id.
+          - name: sale_ts
+            description: Transaction timestamp as text, ISO-8601 UTC.
+          - name: product_code
+            description: SKU code of the product sold.
+          - name: product_name
+            description: Product display name.
+          - name: quantity
+            description: Units sold as text.
+          - name: unit_price
+            description: Price per unit as text, in `currency`.
+          - name: currency
+            description: ISO-4217 currency code.
+          - name: channel
+            description: Sales channel free text.
+          - name: updated_at
+            description: Last modification timestamp as text, ISO-8601 UTC.

@@ -1,0 +1,30 @@
+# dbt
+target/
+dbt_packages/
+dbt_modules/
+logs/
+package-lock.yml
+.user.yml
+
+# local configuration / secrets
+.env
+*.json.key
+sa-key*.json
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# local run output (contains project ids, account names, job payloads)
+cloudshell.log
+*.jsonl
+
+# local drafts
+docs/

@@ -1,0 +1,7 @@
+# Python dependencies for dbt_bq_demo.
+# Install into the shared venv:  ../venv/bin/python -m pip install -r requirements.txt
+#
+# Versions match what the Knowledge Catalog dbt import was validated against
+# (dbt Core 1.11 / 1.12).
+dbt-core==1.12.5
+dbt-bigquery==1.12.1
