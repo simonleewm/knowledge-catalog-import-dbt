@@ -1,4 +1,4 @@
-# dbt_bq_demo
+# knowledge-catalog-import-dbt
 
 A minimal, layered **dbt Core + BigQuery** project used to demonstrate
 importing dbt metadata into **Google Cloud Knowledge Catalog**
